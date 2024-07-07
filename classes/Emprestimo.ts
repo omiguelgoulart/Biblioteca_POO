@@ -2,62 +2,61 @@ import { Livro } from "./Livro";
 import { Membro } from "./Membro";
 
 export class Emprestimo {
-  getMatricula(): any {
-    throw new Error("Method not implemented.");
-  }
+  private dataDevolucao: Date | null;
+  private dataEmprestimo: Date;
   private livro: Livro;
   private membro: Membro;
-  private dataEmprestimo: Date;
-  private dataDevolucao: Date | null;
+  private isbnLivro: string;
+  private matriculaMembro: string;
 
-  constructor(
-    livro: Livro,
-    membro: Membro,
-    dataEmprestimo: Date,
-    dataDevolucao: Date | null = null
-  ) {
-    this.livro = livro;
-    this.membro = membro;
+ 
+    constructor(
+      dataEmprestimo: Date,
+      dataDevolucao: Date | null,
+      livro: Livro,
+      membro: Membro
+    )
+    {
     this.dataEmprestimo = dataEmprestimo;
     this.dataDevolucao = dataDevolucao;
-  }
-
-  setLivro(livro: Livro): void {
     this.livro = livro;
-  }
-
-  setMembro(membro: Membro): void {
     this.membro = membro;
+    this.isbnLivro = livro.getIsbn(); // Guardando o ISBN do livro
+    this.matriculaMembro = membro.getMatricula(); // Guardando a matrícula do membro
   }
 
-  setDataEmprestimo(data: Date): void {
-    this.dataEmprestimo = data;
-  }
-
-  setdataDevolucao(data: Date): void {
-    this.dataDevolucao = data;
-  }
-
-  getLivro(): Livro {
-    return this.livro;
-  }
-
-  getMembro(): Membro {
-    return this.membro;
-  }
-
-  getDataEmprestimo(): Date {
+  // Métodos para obter os dados do empréstimo
+  public getDataEmprestimo(): Date {
     return this.dataEmprestimo;
   }
 
-  getDataDevolucao(): Date | null {
-    if (this.dataDevolucao === null) {
-      return null;
-    }
+  public getDataDevolucao(): Date | null {
     return this.dataDevolucao;
   }
 
-  setDataDevolucao(data: Date): void {
-    this.dataDevolucao = data;
+  public getLivro(): Livro {
+    return this.livro;
   }
+
+  public getMembro(): Membro {
+    return this.membro;
+  }
+
+  public getIsbnLivro(): string {
+    return this.isbnLivro;
+  }
+
+  public getMatriculaMembro(): string {
+    return this.matriculaMembro;
+  }
+
+  // Métodos para definir novas datas
+  public setDataDevolucao(dataDevolucao: Date | null): void {
+    this.dataDevolucao = dataDevolucao;
+  }
+
+  public setDataEmprestimo(dataEmprestimo: Date): void {
+    this.dataEmprestimo = dataEmprestimo;
+  }
+
 }

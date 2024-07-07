@@ -99,15 +99,6 @@ function excluirMembro(): void {
     biblioteca.excluirMembro(matricula);
 }
 
-function alterarMembro(): void {
-    const matricula = prompt("Matrícula do membro: ");
-    const nome = prompt("Nome: ");
-    const endereco = prompt("Endereço: ");
-    const telefone = prompt("Telefone: ");
-
-    const novosDados = new Membro(nome, endereco, telefone, matricula);
-    biblioteca.alterarMembro(matricula, novosDados);
-}
 
 export function menuEmprestimo(): void {
     console.log("+-----------------------+");
@@ -162,26 +153,27 @@ function listarMembros(): void {
 }
 
 function adicionarLivro(): void {
+    const isbn = prompt("ISBN: ");
     const titulo = prompt("Título: ");
     const autor = prompt("Autor: ");
     const editora = prompt("Editora: ");
     const ano = prompt("Ano: ");
     const genero = prompt("Gênero: ");
-    const isbn = prompt("ISBN: ");
 
-    const novoLivro = new Livro(titulo, autor, editora, ano, genero, isbn);
+    const novoLivro = new Livro(isbn, titulo, autor, editora, ano, genero); // Ajuste aqui para passar ISBN como primeiro argumento
     biblioteca.adicionarLivro(novoLivro);
 }
 
+
 function listarLivros(): void {
-    const livros = biblioteca.consultarLivros();
+    const livros: Livro[] = biblioteca.consultarLivros(); // Certifique-se de definir o tipo de retorno corretamente
     console.table(livros.map(livro => ({
+        ISBN: livro.getIsbn(),
         Título: livro.getTitulo(),
         Autor: livro.getAutor(),
         Editora: livro.getEditora(),
         Ano: livro.getAno(),
-        Gênero: livro.getGenero(),
-        ISBN: livro.getIsbn()
+        Gênero: livro.getGenero()
     })));
 }
 
@@ -216,11 +208,13 @@ function realizarEmprestimo(): void {
     const dataDevolucao = new Date();
     dataDevolucao.setDate(dataDevolucao.getDate() + 7); // Exemplo: empréstimo de 7 dias
 
-    const novoEmprestimo = new Emprestimo(livroSelecionado, membroSelecionado, dataEmprestimo, dataDevolucao);
+    const novoEmprestimo = new Emprestimo(dataEmprestimo, dataDevolucao, livroSelecionado, membroSelecionado);
     biblioteca.adicionarEmprestimo(novoEmprestimo); // Adiciona o empréstimo à biblioteca
 
     console.log("Empréstimo realizado com sucesso.");
 }
+
+
 
 
 function listarEmprestimos(): void {
@@ -239,4 +233,20 @@ function devolverLivro(): void {
 
     biblioteca.devolverLivro(isbn, matricula, dataDevolucao);
 }
+
+function alterarMembro() {
+    const matricula = prompt("Matrícula do membro: ");
+    const nome = prompt("Nome: ");
+    const endereco = prompt("Endereço: ");
+    const telefone = prompt("Telefone: ");
+
+    const novosDados = {
+        nome: nome,
+        endereco: endereco,
+        telefone: telefone
+    };
+    biblioteca.alterarMembro(matricula, novosDados);
+}
+
+
 

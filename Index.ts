@@ -1,5 +1,3 @@
-// Importando as funções de menu (substitua pelo seu próprio código)
-import { exit } from 'process';
 import { menuEmprestimo, menuLivro, menuMembro } from './Util';
 
 // Importando a função prompt de forma adequada
