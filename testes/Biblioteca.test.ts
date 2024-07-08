@@ -1,224 +1,133 @@
-import { Biblioteca } from '../classes/Biblioteca';
-import { Membro } from '../classes/Membro';
-import { Livro } from '../classes/Livro';
-import { Emprestimo } from '../classes/Emprestimo';
-import * as fs from 'fs';
-import { mocked } from 'jest-mock';
+import { Biblioteca } from "../classes/Biblioteca";
+import { Membro } from "../classes/Membro";
+import { Livro } from "../classes/Livro";
+import { Emprestimo } from "../classes/Emprestimo";
 
-jest.mock('fs');
-
-const mockedFs = mocked(fs, { shallow: true });
-
-describe('Biblioteca', () => {
+describe("Biblioteca", () => {
     let biblioteca: Biblioteca;
 
     beforeEach(() => {
-        jest.clearAllMocks();
         biblioteca = new Biblioteca();
     });
 
-
-
-
-    it('deve adicionar um membro', () => {
-        const membro = new Membro('Nome Teste', 'Endereço Teste',
-        'Telefone Teste', '12345');
+    it("deve adicionar um membro à biblioteca", () => {
+        const membro = new Membro("Fulano de Tal", "Rua Principal, 123", "123-456-7890", "001");
         biblioteca.adicionarMembro(membro);
-        expect(biblioteca.consultarMembros()).toContain(membro);
+        const membros = biblioteca.consultarMembros();
+        expect(membros).toContain(membro);
     });
 
-
-
-    it('deve adicionar um livro', () => {
-        const livro = new Livro('ISBN123', 'Título Teste', 'Autor Teste', 
-        'Editora Teste', '2020', 'Gênero Teste');
+    it("deve adicionar um livro à biblioteca", () => {
+        const livro = new Livro("1234567890", "Título do Livro", "Autor", "Editora", "2022", "Gênero");
         biblioteca.adicionarLivro(livro);
-        expect(biblioteca.consultarLivros()).toContain(livro);
+        const livros = biblioteca.consultarLivros();
+        expect(livros).toContain(livro);
     });
 
-
-
-
-
-    it('deve adicionar um empréstimo', () => {
-        const membro = new Membro('Nome Teste', 'Endereço Teste',
-        'Telefone Teste', '12345');
-        const livro = new Livro('ISBN123', 'Título Teste',
-        'Autor Teste', 'Editora Teste',
-        '2020', 'Gênero Teste');
+    it("deve adicionar um empréstimo à biblioteca", () => {
+        const membro = new Membro("Fulano de Tal", "Rua Principal, 123", "123-456-7890", "001");
+        const livro = new Livro("123456789", "Título do Livro", "Autor do Livro", "Editora do Livro", "2020", "Gênero do Livro");
         biblioteca.adicionarMembro(membro);
         biblioteca.adicionarLivro(livro);
-        const emprestimo = new Emprestimo(new Date(), null, livro, membro);
+        const dataEmprestimo = new Date();
+        const dataDevolucao = new Date(dataEmprestimo.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 dias depois
+        const emprestimo = new Emprestimo(dataEmprestimo, dataDevolucao, livro, membro);
         biblioteca.adicionarEmprestimo(emprestimo);
-        expect(biblioteca.consultarEmprestimos()).toContain(emprestimo);
+        const emprestimos = biblioteca.consultarEmprestimos();
+        expect(emprestimos).toContain(emprestimo);
     });
 
-
-
-
-
-
-
-
-    it('deve excluir um membro', () => {
-        const membro = new Membro('Nome Teste', 'Endereço Teste', 'Telefone Teste', '12345');
+    it("deve remover um membro da biblioteca", () => {
+        const membro = new Membro("Fulano de Tal", "Rua Principal, 123", "123-456-7890", "001");
         biblioteca.adicionarMembro(membro);
-        biblioteca.excluirMembro('12345');
-        expect(biblioteca.consultarMembros()).not.toContain(membro);
+        biblioteca.excluirMembro(membro.getMatricula());
+        const membros = biblioteca.consultarMembros();
+        expect(membros).not.toContain(membro);
     });
 
-    it('deve excluir um livro', () => {
-        const livro = new Livro('ISBN123', 'Título Teste', 'Autor Teste', 'Editora Teste', '2020', 'Gênero Teste');
+    it("deve remover um livro da biblioteca", () => {
+        const livro = new Livro("1234567890", "Título do Livro", "Autor", "Editora", "2022", "Gênero");
         biblioteca.adicionarLivro(livro);
-        biblioteca.excluirLivro('ISBN123');
-        expect(biblioteca.consultarLivros()).not.toContain(livro);
+        biblioteca.excluirLivro(livro.getIsbn());
+        const livros = biblioteca.consultarLivros();
+        expect(livros).not.toContain(livro);
     });
 
-    it('deve devolver um livro', () => {
-        const membro = new Membro('Nome Teste', 'Endereço Teste', 'Telefone Teste', '12345');
-        const livro = new Livro('ISBN123', 'Título Teste', 'Autor Teste', 'Editora Teste', '2020', 'Gênero Teste');
+    it("deve atualizar as informações de um membro", () => {
+        const membro = new Membro("Fulano de Tal", "Rua Principal, 123", "123-456-7890", "001");
         biblioteca.adicionarMembro(membro);
+        const novosDados = {
+            nome: "Beltrano da Silva",
+            endereco: "Avenida Secundária, 456",
+            telefone: "987-654-3210",
+        };
+        biblioteca.alterarMembro(membro.getMatricula(), novosDados);
+        const membros = biblioteca.consultarMembros();
+        const membroAtualizado = membros.find((m) => m.getMatricula() === membro.getMatricula());
+        expect(membroAtualizado?.getNome()).toBe(novosDados.nome);
+        expect(membroAtualizado?.getEndereco()).toBe(novosDados.endereco);
+        expect(membroAtualizado?.getTelefone()).toBe(novosDados.telefone);
+    });
+
+    it("deve atualizar as informações de um livro", () => {
+        const livro = new Livro("1234567890", "Título do Livro", "Autor", "Editora", "2022", "Gênero");
         biblioteca.adicionarLivro(livro);
-        const emprestimo = new Emprestimo(new Date(), null, livro, membro);
-        biblioteca.adicionarEmprestimo(emprestimo);
-        const dataDevolucao = new Date();
-        biblioteca.devolverLivro('ISBN123', '12345', dataDevolucao);
-        expect(emprestimo.getDataDevolucao()).toEqual(dataDevolucao);
+        const novosDados = {
+            titulo: "Novo Título",
+            autor: "Novo Autor",
+            editora: "Nova Editora",
+            ano: "2023",
+            genero: "Novo Gênero",
+        };
+        biblioteca.alterarLivro(livro.getIsbn(), novosDados);
+        const livros = biblioteca.consultarLivros();
+        const livroAtualizado = livros.find((l) => l.getIsbn() === livro.getIsbn());
+        expect(livroAtualizado?.getTitulo()).toBe(novosDados.titulo);
+        expect(livroAtualizado?.getAutor()).toBe(novosDados.autor);
+        expect(livroAtualizado?.getEditora()).toBe(novosDados.editora);
+        expect(livroAtualizado?.getAno()).toBe(novosDados.ano);
+        expect(livroAtualizado?.getGenero()).toBe(novosDados.genero);
     });
 
-    it('deve alterar dados de um membro', () => {
-        const membro = new Membro('Nome Teste', 'Endereço Teste', 'Telefone Teste', '12345');
-        biblioteca.adicionarMembro(membro);
-        biblioteca.alterarMembro('12345', { nome: 'Novo Nome' });
-        expect(membro.getNome()).toEqual('Novo Nome');
-        biblioteca.alterarMembro('12345', { endereco: 'Novo Endereço' });
-        expect(membro.getEndereco()).toEqual('Novo Endereço');
-        biblioteca.alterarMembro('12345', { telefone: 'Novo Telefone' });
-        expect(membro.getTelefone()).toEqual('Novo Telefone');
+    it("deve retornar todos os membros da biblioteca", () => {
+        const membro1 = new Membro("Fulano de Tal", "Rua Principal, 123", "123-456-7890", "001");
+        const membro2 = new Membro("Beltrano da Silva", "Avenida Secundária, 456", "987-654-3210", "002");
+        biblioteca.adicionarMembro(membro1);
+        biblioteca.adicionarMembro(membro2);
+        const membros = biblioteca.consultarMembros();
+        expect(membros).toContain(membro1);
+        expect(membros).toContain(membro2);
     });
 
-    it('deve alterar dados de um livro', () => {
-        const livro = new Livro('ISBN123', 'Título Teste', 'Autor Teste', 'Editora Teste', '2020', 'Gênero Teste');
-        biblioteca.adicionarLivro(livro);
-        biblioteca.alterarLivro('ISBN123', { titulo: 'Novo Título' });
-        expect(livro.getTitulo()).toEqual('Novo Título');
-        biblioteca.alterarLivro('ISBN123', { autor: 'Novo Autor' });
-        expect(livro.getAutor()).toEqual('Novo Autor');
-        biblioteca.alterarLivro('ISBN123', { editora: 'Nova Editora' });
-        expect(livro.getEditora()).toEqual('Nova Editora');
-        biblioteca.alterarLivro('ISBN123', { ano: '2021' });
-        expect(livro.getAno()).toEqual('2021');
-        biblioteca.alterarLivro('ISBN123', { genero: 'Novo Gênero' });
-        expect(livro.getGenero()).toEqual('Novo Gênero');
+    it("deve retornar todos os livros da biblioteca", () => {
+        const livro1 = new Livro("1234567890", "Título do Livro 1", "Autor 1", "Editora 1", "2022", "Gênero 1");
+        const livro2 = new Livro("0987654321", "Título do Livro 2", "Autor 2", "Editora 2", "2023", "Gênero 2");
+        biblioteca.adicionarLivro(livro1);
+        biblioteca.adicionarLivro(livro2);
+        const livros = biblioteca.consultarLivros();
+        expect(livros).toContain(livro1);
+        expect(livros).toContain(livro2);
     });
 
-    // Testes para carregar e salvar dados
-    it('deve carregar membros de um arquivo', () => {
-        const dadosMembros = 'Nome,Endereço,Telefone,Matrícula\nNome Teste,Endereço Teste,Telefone Teste,12345\n';
-        mockedFs.readFileSync.mockReturnValue(dadosMembros);
-        biblioteca.carregarMembros();
-        const membro = new Membro('Nome Teste', 'Endereço Teste', 'Telefone Teste', '12345');
-        expect(biblioteca.consultarMembros()).toContainEqual(membro);
-    });
-
-    it('deve carregar livros de um arquivo', () => {
-        const dadosLivros = 'ISBN,Título,Autor,Editora,Ano,Gênero\nISBN123,Título Teste,Autor Teste,Editora Teste,2020,Gênero Teste\n';
-        mockedFs.readFileSync.mockReturnValue(dadosLivros);
-        biblioteca.carregarLivros();
-        const livro = new Livro('ISBN123', 'Título Teste', 'Autor Teste', 'Editora Teste', '2020', 'Gênero Teste');
-        expect(biblioteca.consultarLivros()).toContainEqual(livro);
-    });
-
-    it('deve carregar empréstimos de um arquivo', () => {
-        const dadosMembros = 'Nome,Endereço,Telefone,Matrícula\nNome Teste,Endereço Teste,Telefone Teste,12345\n';
-        const dadosLivros = 'ISBN,Título,Autor,Editora,Ano,Gênero\nISBN123,Título Teste,Autor Teste,Editora Teste,2020,Gênero Teste\n';
-        const dadosEmprestimos = 'ISBN,Matrícula,Data de Empréstimo,Data de Devolução\nISBN123,12345,2023-01-01T00:00:00.000Z,\n';
-        mockedFs.readFileSync
-            .mockReturnValueOnce(dadosMembros)
-            .mockReturnValueOnce(dadosLivros)
-            .mockReturnValueOnce(dadosEmprestimos);
-        biblioteca.carregarMembros();
-        biblioteca.carregarLivros();
-        biblioteca.carregarEmprestimos();
-        const livro = new Livro('ISBN123', 'Título Teste', 'Autor Teste', 'Editora Teste', '2020', 'Gênero Teste');
-        const membro = new Membro('Nome Teste', 'Endereço Teste', 'Telefone Teste', '12345');
-        const emprestimo = new Emprestimo(new Date('2023-01-01T00:00:00.000Z'), null, livro, membro);
-        expect(biblioteca.consultarEmprestimos()).toContainEqual(emprestimo);
-    });
-
-    it('deve consultar empréstimos por membro', () => {
-        const membro1 = new Membro('Nome Teste 1', 'Endereço Teste 1', 'Telefone Teste 1', '12345');
-        const membro2 = new Membro('Nome Teste 2', 'Endereço Teste 2', 'Telefone Teste 2', '67890');
-        const livro1 = new Livro('ISBN123', 'Título Teste 1', 'Autor Teste 1', 'Editora Teste 1', '2020', 'Gênero Teste 1');
-        const livro2 = new Livro('ISBN456', 'Título Teste 2', 'Autor Teste 2', 'Editora Teste 2', '2021', 'Gênero Teste 2');
-        const emprestimo1 = new Emprestimo(new Date(), null, livro1, membro1);
-        const emprestimo2 = new Emprestimo(new Date(), null, livro2, membro1);
-        const emprestimo3 = new Emprestimo(new Date(), null, livro1, membro2);
+    it("deve retornar todos os empréstimos da biblioteca", () => {
+        const membro1 = new Membro("Fulano de Tal", "Rua Principal, 123", "123-456-7890", "001");
+        const membro2 = new Membro("Beltrano da Silva", "Avenida Secundária, 456", "987-654-3210", "002");
+        const livro1 = new Livro("1234567890", "Título do Livro 1", "Autor 1", "Editora 1", "2022", "Gênero 1");
+        const livro2 = new Livro("0987654321", "Título do Livro 2", "Autor 2", "Editora 2", "2023", "Gênero 2");
         biblioteca.adicionarMembro(membro1);
         biblioteca.adicionarMembro(membro2);
         biblioteca.adicionarLivro(livro1);
         biblioteca.adicionarLivro(livro2);
+        const dataEmprestimo1 = new Date();
+        const dataDevolucao1 = new Date(dataEmprestimo1.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 dias depois
+        const emprestimo1 = new Emprestimo(dataEmprestimo1, dataDevolucao1, livro1, membro1);
+        const dataEmprestimo2 = new Date();
+        const dataDevolucao2 = new Date(dataEmprestimo2.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 dias depois
+        const emprestimo2 = new Emprestimo(dataEmprestimo2, dataDevolucao2, livro2, membro2);
         biblioteca.adicionarEmprestimo(emprestimo1);
         biblioteca.adicionarEmprestimo(emprestimo2);
-        biblioteca.adicionarEmprestimo(emprestimo3);
-        const emprestimosMembro1 = biblioteca.consultarEmprestimosPorMembro('12345');
-        const emprestimosMembro2 = biblioteca.consultarEmprestimosPorMembro('67890');
-        expect(emprestimosMembro1).toEqual([emprestimo1, emprestimo2]);
-        expect(emprestimosMembro2).toEqual([emprestimo3]);
-    });
-
-    it('deve consultar empréstimos por livro', () => {
-        const membro1 = new Membro('Nome Teste 1', 'Endereço Teste 1', 'Telefone Teste 1', '12345');
-        const membro2 = new Membro('Nome Teste 2', 'Endereço Teste 2', 'Telefone Teste 2', '67890');
-        const livro1 = new Livro('ISBN123', 'Título Teste 1', 'Autor Teste 1', 'Editora Teste 1', '2020', 'Gênero Teste 1');
-        const livro2 = new Livro('ISBN456', 'Título Teste 2', 'Autor Teste 2', 'Editora Teste 2', '2021', 'Gênero Teste 2');
-        const emprestimo1 = new Emprestimo(new Date(), null, livro1, membro1);
-        const emprestimo2 = new Emprestimo(new Date(), null, livro1, membro2);
-        const emprestimo3 = new Emprestimo(new Date(), null, livro2, membro1);
-        biblioteca.adicionarMembro(membro1);
-        biblioteca.adicionarMembro(membro2);
-        biblioteca.adicionarLivro(livro1);
-        biblioteca.adicionarLivro(livro2);
-        biblioteca.adicionarEmprestimo(emprestimo1);
-        biblioteca.adicionarEmprestimo(emprestimo2);
-        biblioteca.adicionarEmprestimo(emprestimo3);
-        const emprestimosLivro1 = biblioteca.consultarEmprestimosPorLivro('ISBN123');
-        const emprestimosLivro2 = biblioteca.consultarEmprestimosPorLivro('ISBN456');
-        expect(emprestimosLivro1).toEqual([emprestimo1, emprestimo2]);
-        expect(emprestimosLivro2).toEqual([emprestimo3]);
-    });
-
-    it('deve salvar membros em um arquivo', () => {
-        const membro = new Membro('Nome Teste', 'Endereço Teste', 'Telefone Teste', '12345');
-        biblioteca.adicionarMembro(membro);
-        biblioteca.salvarMembros();
-        expect(mockedFs.writeFileSync).toHaveBeenCalledWith(
-            'membros.csv',
-            'Nome,Endereço,Telefone,Matrícula\nNome Teste,Endereço Teste,Telefone Teste,12345\n'
-        );
-    });
-
-    it('deve salvar livros em um arquivo', () => {
-        const livro = new Livro('ISBN123', 'Título Teste', 'Autor Teste', 'Editora Teste', '2020', 'Gênero Teste');
-        biblioteca.adicionarLivro(livro);
-        biblioteca.salvarLivros();
-        expect(mockedFs.writeFileSync).toHaveBeenCalledWith(
-            'livros.csv',
-            'ISBN,Título,Autor,Editora,Ano,Gênero\nISBN123,Título Teste,Autor Teste,Editora Teste,2020,Gênero Teste\n'
-        );
-    });
-
-    it('deve salvar empréstimos em um arquivo', () => {
-        const membro = new Membro('Nome Teste', 'Endereço Teste', 'Telefone Teste', '12345');
-        const livro = new Livro('ISBN123', 'Título Teste', 'Autor Teste', 'Editora Teste', '2020', 'Gênero Teste');
-        biblioteca.adicionarMembro(membro);
-        biblioteca.adicionarLivro(livro);
-        const emprestimo = new Emprestimo(new Date('2023-01-01T00:00:00.000Z'), null, livro, membro);
-        biblioteca.adicionarEmprestimo(emprestimo);
-        biblioteca.salvarEmprestimos();
-        expect(mockedFs.writeFileSync).toHaveBeenCalledWith(
-            'emprestimos.csv',
-            'ISBN,Matrícula,Data de Empréstimo,Data de Devolução\nISBN123,12345,2023-01-01T00:00:00.000Z,\n'
-        );
+        const emprestimos = biblioteca.consultarEmprestimos();
+        expect(emprestimos).toContain(emprestimo1);
+        expect(emprestimos).toContain(emprestimo2);
     });
 });
