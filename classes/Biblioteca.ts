@@ -16,25 +16,39 @@ export class Biblioteca {
         this.carregarLivros();
         this.carregarEmprestimos();
     }
+
+
+
     adicionarMembro(membro: Membro): void {
         this.membros.push(membro);
-        this.salvarMembros(); // Chama o método para salvar membros após adicionar um novo membro
+        this.salvarMembros(); 
     }
     adicionarLivro(livro: Livro): void {
         this.livros.push(livro);
-        this.salvarLivros(); // Chama o método para salvar livros após adicionar um novo livro
+        this.salvarLivros(); 
     }
-    public adicionarEmprestimo(emprestimo: Emprestimo): void {
-        const livro = this.livros.find(l => l.getIsbn() === emprestimo.getIsbnLivro());
-        const membro = this.membros.find(m => m.getMatricula() === emprestimo.getMatriculaMembro());
 
+
+    public adicionarEmprestimo(emprestimo: Emprestimo): void {
+        const livro = this.livros.find(l => l.getIsbn() === emprestimo.
+        getIsbnLivro());
+        const membro = this.membros.find(m => m.getMatricula() === 
+        emprestimo.getMatriculaMembro());
         if (livro && membro) {
             this.emprestimos.push(emprestimo);
-            this.salvarEmprestimos(); // Salva os empréstimos após adicionar um novo
+            this.salvarEmprestimos();
         } else {
-            console.log(`Erro ao carregar empréstimo: Livro ou Membro não encontrado para ISBN ${emprestimo.getIsbnLivro()} e Matrícula ${emprestimo.getMatriculaMembro()}`);
+            console.log(`Erro ao carregar empréstimo: Livro ou Membro
+            não encontrado para ISBN 
+            ${emprestimo.getIsbnLivro()} e Matrícula ${emprestimo.
+                getMatriculaMembro()}`);
         }
     }
+
+
+
+
+
     async salvarMembros(): Promise<void> {
         const csvWriter = createObjectCsvWriter({
             path: path.resolve('dados/membros.csv'),
@@ -58,6 +72,11 @@ export class Biblioteca {
             console.error('Erro ao salvar membros:', err);
         }
     }
+
+
+
+
+
     async salvarLivros(): Promise<void> {
         const csvWriter = createObjectCsvWriter({
             path: path.resolve('dados/livros.csv'),
@@ -88,36 +107,31 @@ export class Biblioteca {
 
     async salvarEmprestimos(): Promise<void> {
         const csvWriter = createObjectCsvWriter({
-          path: path.resolve('dados/emprestimos.csv'),
-          header: [
+            path: path.resolve('dados/emprestimos.csv'),
+            header: [
             { id: 'isbn', title: 'ISBN' },
             { id: 'matricula', title: 'Matrícula' },
             { id: 'dataEmprestimo', title: 'Data de Empréstimo' },
             { id: 'dataDevolucao', title: 'Data de Devolução' }
-          ]
-        });
-    
-        const registros = this.emprestimos.map(e => {
-            if (e.getLivro() && e.getMembro()) {
-                const dataEmprestimo = e.getDataEmprestimo();
-                const dataDevolucao = e.getDataDevolucao();
-                
-                return {
-                    isbn: e.getLivro().getIsbn(),
-                    matricula: e.getMembro().getMatricula(),
-                    dataEmprestimo: dataEmprestimo ? dataEmprestimo.toLocaleDateString() : '',
-                    dataDevolucao: dataDevolucao ? dataDevolucao.toLocaleDateString() : ''
-                };
-            }
-            
+        ]});
+    const registros = this.emprestimos.map(e => {
+        if (e.getLivro() && e.getMembro()) {
+            const dataEmprestimo = e.getDataEmprestimo();
+            const dataDevolucao = e.getDataDevolucao();
             return {
-                isbn: '',
-                matricula: '',
-                dataEmprestimo: '',
-                dataDevolucao: ''
+                isbn: e.getLivro().getIsbn(),
+                matricula: e.getMembro().getMatricula(),
+                dataEmprestimo: dataEmprestimo ? dataEmprestimo.toLocaleDateString() : '',
+                dataDevolucao: dataDevolucao ? dataDevolucao.toLocaleDateString() : ''
             };
+        }
+        return {
+            isbn: '',
+            matricula: '',
+            dataEmprestimo: '',
+            dataDevolucao: ''
+        };
         }).filter(e => e.isbn !== '');
-        
         try {
             await csvWriter.writeRecords(registros);
             console.log('Empréstimos salvos com sucesso.');
@@ -125,17 +139,32 @@ export class Biblioteca {
             console.error('Erro ao salvar os empréstimos:', error);
         }
     }        
-      
+
+
+
+
+
+
+
     carregarMembros(): void {
         const caminho = path.resolve('dados/membros.csv');
         if (fs.existsSync(caminho)) {
             const dados = fs.readFileSync(caminho, 'utf-8').split('\n').slice(1);
             this.membros = dados.map(linha => {
-                const [nome, endereco, telefone, matricula] = linha.split(',').map(campo => campo.trim());
+                const [nome, endereco, telefone, matricula] = linha.split(',')
+                .map(campo => campo.trim());
                 return new Membro(nome, endereco, telefone, matricula);
             });
         }
     }
+
+
+
+
+
+
+
+
 
     carregarLivros(): void {
         const caminho = path.resolve('dados/livros.csv');
@@ -167,15 +196,28 @@ export class Biblioteca {
         }
       }
 
+
+
+
+
+
     excluirMembro(matricula: string): void {
-        this.membros = this.membros.filter(m => m.getMatricula() !== matricula);
+        this.membros = this.membros.filter(m => m.getMatricula()
+        !== matricula);
         this.salvarMembros();
     }
 
     excluirLivro(isbn: string): void {
-        this.livros = this.livros.filter(l => l.getIsbn() !== isbn);
+        this.livros = this.livros.filter(l => l.getIsbn()
+        !== isbn);
         this.salvarLivros();
     }
+
+
+
+
+
+
 
     devolverLivro(isbn: string, matricula: string, dataDevolucao: Date): void {
         const emprestimo = this.emprestimos.find(e => e.getLivro().getIsbn() === isbn && e.getMembro().getMatricula() === matricula);
@@ -185,20 +227,38 @@ export class Biblioteca {
         }
     }
 
-    public alterarMembro(matricula: string, novosDados: Partial<{ nome: string; endereco: string; telefone: string }>): void {
-        const membro = this.membros.find(m => m.getMatricula() === matricula);
+
+
+
+
+
+    public alterarMembro(matricula: string, novosDados: 
+        Partial<{ 
+        nome: string; endereco: string; telefone: string }>): void {
+        const membro = this.membros.find(m => m.getMatricula() === 
+        matricula);
         if (membro) {
             if (novosDados.nome) membro.setNome(novosDados.nome);
-            if (novosDados.endereco) membro.setEndereco(novosDados.endereco);
-            if (novosDados.telefone) membro.setTelefone(novosDados.telefone);
+            if (novosDados.endereco) membro.setEndereco
+            (novosDados.endereco);
+            if (novosDados.telefone) membro.setTelefone
+            (novosDados.telefone);
             this.salvarMembros();
         }
     }
 
-    alterarLivro(isbn: string, novosDados: Partial<Livro>): void {
+
+
+
+
+
+
+
+    public alterarLivro(isbn: string, novosDados: Partial<Livro>): void {
         const livro = this.livros.find(l => l.getIsbn() === isbn);
         if (livro) {
-            if ((novosDados as any).titulo !== undefined) livro.setTitulo((novosDados as any).titulo);
+            if ((novosDados as any).titulo !== undefined) livro.setTitulo(
+                (novosDados as any).titulo);
             if ((novosDados as any).autor !== undefined) livro.setAutor((novosDados as any).autor);
             if ((novosDados as any).editora !== undefined) livro.setEditora((novosDados as any).editora);
             if ((novosDados as any).ano !== undefined) livro.setAno((novosDados as any).ano);
@@ -206,6 +266,13 @@ export class Biblioteca {
             this.salvarLivros();
         }
     }
+
+
+
+
+
+
+
 
     consultarMembros(): Membro[] {
         return this.membros;

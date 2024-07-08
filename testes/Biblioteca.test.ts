@@ -17,27 +17,48 @@ describe('Biblioteca', () => {
         biblioteca = new Biblioteca();
     });
 
+
+
+
     it('deve adicionar um membro', () => {
-        const membro = new Membro('Nome Teste', 'Endereço Teste', 'Telefone Teste', '12345');
+        const membro = new Membro('Nome Teste', 'Endereço Teste',
+        'Telefone Teste', '12345');
         biblioteca.adicionarMembro(membro);
         expect(biblioteca.consultarMembros()).toContain(membro);
     });
 
+
+
     it('deve adicionar um livro', () => {
-        const livro = new Livro('ISBN123', 'Título Teste', 'Autor Teste', 'Editora Teste', '2020', 'Gênero Teste');
+        const livro = new Livro('ISBN123', 'Título Teste', 'Autor Teste', 
+        'Editora Teste', '2020', 'Gênero Teste');
         biblioteca.adicionarLivro(livro);
         expect(biblioteca.consultarLivros()).toContain(livro);
     });
 
+
+
+
+
     it('deve adicionar um empréstimo', () => {
-        const membro = new Membro('Nome Teste', 'Endereço Teste', 'Telefone Teste', '12345');
-        const livro = new Livro('ISBN123', 'Título Teste', 'Autor Teste', 'Editora Teste', '2020', 'Gênero Teste');
+        const membro = new Membro('Nome Teste', 'Endereço Teste',
+        'Telefone Teste', '12345');
+        const livro = new Livro('ISBN123', 'Título Teste',
+        'Autor Teste', 'Editora Teste',
+        '2020', 'Gênero Teste');
         biblioteca.adicionarMembro(membro);
         biblioteca.adicionarLivro(livro);
         const emprestimo = new Emprestimo(new Date(), null, livro, membro);
         biblioteca.adicionarEmprestimo(emprestimo);
         expect(biblioteca.consultarEmprestimos()).toContain(emprestimo);
     });
+
+
+
+
+
+
+
 
     it('deve excluir um membro', () => {
         const membro = new Membro('Nome Teste', 'Endereço Teste', 'Telefone Teste', '12345');
