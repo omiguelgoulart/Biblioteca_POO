@@ -197,17 +197,13 @@ export class Biblioteca {
     if (emprestimo) {
       emprestimo.setDataDevolucao(dataDevolucao);
       this.salvarEmprestimos();
+
+      this.livros = this.livros.filter((livro) => livro.getIsbn() !== isbn);
+      this.salvarLivros();
     }
   }
 
-  public alterarMembro(
-    matricula: string,
-    novosDados: Partial<{
-      nome: string;
-      endereco: string;
-      telefone: string;
-    }>
-  ): void {
+  public alterarMembro(matricula: string,novosDados: Partial<{nome: string; endereco: string; telefone: string; }>): void {
     const membro = this.membros.find((m) => m.getMatricula() === matricula);
     if (membro) {
       if (novosDados.nome) membro.setNome(novosDados.nome);
@@ -244,5 +240,17 @@ export class Biblioteca {
 
   consultarEmprestimos(): Emprestimo[] {
     return this.emprestimos;
-}
+  }
+
+    buscarHistoricoPorMembro(matricula: string): string[] {
+      const historico: string[] = [];
+      this.emprestimos.forEach((emprestimo) => {
+        if (emprestimo.getMembro().getMatricula() === matricula) {
+          historico.push(
+            `Empréstimo de ${emprestimo.getLivro().getTitulo()} por ${emprestimo.getMembro().getNome()} em ${emprestimo.getDataEmprestimo().toLocaleDateString()} até ${emprestimo.getDataDevolucao()?.toLocaleDateString() ?? 'indefinido'}`
+          );
+        }
+      });
+      return historico;
+    }
 }

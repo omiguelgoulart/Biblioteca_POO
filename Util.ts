@@ -8,6 +8,8 @@ import { Emprestimo } from "./classes/Emprestimo";
 const prompt = PromptSync();
 const biblioteca = new Biblioteca();
 
+
+// Menu livro
 export function menuLivro(): void {
     console.log("+----------------------+");
     console.log("|     Menu Livro       |");
@@ -43,9 +45,28 @@ export function menuLivro(): void {
     }
 }
 
-function excluirLivro(): void {
-    const isbn = prompt("ISBN do livro: ");
-    biblioteca.excluirLivro(isbn);
+function adicionarLivro(): void {
+    const isbn = prompt("ISBN: ");
+    const titulo = prompt("Título: ");
+    const autor = prompt("Autor: ");
+    const editora = prompt("Editora: ");
+    const ano = prompt("Ano: ");
+    const genero = prompt("Gênero: ");
+
+    const novoLivro = new Livro(isbn, titulo, autor, editora, ano, genero);
+    biblioteca.adicionarLivro(novoLivro);
+}
+
+function listarLivros(): void {
+    const livros: Livro[] = biblioteca.consultarLivros(); // Certifique-se de definir o tipo de retorno corretamente
+    console.table(livros.map(livro => ({
+        ISBN: livro.getIsbn(),
+        Título: livro.getTitulo(),
+        Autor: livro.getAutor(),
+        Editora: livro.getEditora(),
+        Ano: livro.getAno(),
+        Gênero: livro.getGenero()
+    })));
 }
 
 function alterarLivro(): void {
@@ -60,6 +81,12 @@ function alterarLivro(): void {
     biblioteca.alterarLivro(isbn, novosDados);
 }
 
+function excluirLivro(): void {
+    const isbn = prompt("ISBN do livro: ");
+    biblioteca.excluirLivro(isbn);
+}
+
+// Menu membro
 export function menuMembro(): void {
     console.log("+----------------------+");
     console.log("|     Menu Membro      |");
@@ -94,44 +121,6 @@ export function menuMembro(): void {
     }
 }
 
-function excluirMembro(): void {
-    const matricula = prompt("Matrícula do membro: ");
-    biblioteca.excluirMembro(matricula);
-}
-
-
-export function menuEmprestimo(): void {
-    console.log("+-----------------------+");
-    console.log("|   Menu Empréstimo     |");
-    console.log("+-----------------------+");
-    console.log("| 1. Realizar empréstimo|");
-    console.log("| 2. Listar empréstimos |");
-    console.log("| 3. Devolver livro     |");
-    console.log("| 4. Voltar             |");
-    console.log("+-----------------------+");
-
-    const opcao = prompt("Escolha uma opção: ");
-
-    switch (opcao) {
-        case "1":
-            realizarEmprestimo();
-            break;
-        case "2":
-            listarEmprestimos();
-            break;
-        case "3":
-            devolverLivro();
-            break;
-        case "4":
-            menuPrincipal();
-            break;
-        default:
-            console.log("Opção inválida.");
-    }
-}
-
-
-
 function adicionarMembro(): void {
     const nome = prompt("Nome: ");
     const endereco = prompt("Endereço: ");
@@ -152,29 +141,59 @@ function listarMembros(): void {
     })));
 }
 
-function adicionarLivro(): void {
-    const isbn = prompt("ISBN: ");
-    const titulo = prompt("Título: ");
-    const autor = prompt("Autor: ");
-    const editora = prompt("Editora: ");
-    const ano = prompt("Ano: ");
-    const genero = prompt("Gênero: ");
+function alterarMembro() {
+    const matricula = prompt("Matrícula do membro: ");
+    const nome = prompt("Nome: ");
+    const endereco = prompt("Endereço: ");
+    const telefone = prompt("Telefone: ");
 
-    const novoLivro = new Livro(isbn, titulo, autor, editora, ano, genero); // Ajuste aqui para passar ISBN como primeiro argumento
-    biblioteca.adicionarLivro(novoLivro);
+    const novosDados = {
+        nome: nome,
+        endereco: endereco,
+        telefone: telefone
+    };
+    biblioteca.alterarMembro(matricula, novosDados);
+}
+
+function excluirMembro(): void {
+    const matricula = prompt("Matrícula do membro: ");
+    biblioteca.excluirMembro(matricula);
 }
 
 
-function listarLivros(): void {
-    const livros: Livro[] = biblioteca.consultarLivros(); // Certifique-se de definir o tipo de retorno corretamente
-    console.table(livros.map(livro => ({
-        ISBN: livro.getIsbn(),
-        Título: livro.getTitulo(),
-        Autor: livro.getAutor(),
-        Editora: livro.getEditora(),
-        Ano: livro.getAno(),
-        Gênero: livro.getGenero()
-    })));
+// Menu empréstimo
+export function menuEmprestimo(): void {
+    console.log("+-----------------------+");
+    console.log("|   Menu Empréstimo     |");
+    console.log("+-----------------------+");
+    console.log("| 1. Realizar empréstimo|");
+    console.log("| 2. Listar empréstimos |");
+    console.log("| 3. Devolver livro     |");
+    console.log("| 4. Historico Membro   |");
+    console.log("| 5. Voltar             |");
+    console.log("+-----------------------+");
+
+    const opcao = prompt("Escolha uma opção: ");
+
+    switch (opcao) {
+        case "1":
+            realizarEmprestimo();
+            break;
+        case "2":
+            listarEmprestimos();
+            break;
+        case "3":
+            devolverLivro();
+            break;
+        case "4":
+            buscarHistoricoPorMembro();
+            break;
+        case "5":
+            menuPrincipal();
+            break;
+        default:
+            console.log("Opção inválida.");
+    }
 }
 
 function realizarEmprestimo(): void {
@@ -206,16 +225,14 @@ function realizarEmprestimo(): void {
 
     const dataEmprestimo = new Date();
     const dataDevolucao = new Date();
-    dataDevolucao.setDate(dataDevolucao.getDate() + 7); // Exemplo: empréstimo de 7 dias
+    dataDevolucao.setDate(dataDevolucao.getDate() + 7); 
 
     const novoEmprestimo = new Emprestimo(dataEmprestimo, dataDevolucao, livroSelecionado, membroSelecionado);
-    biblioteca.adicionarEmprestimo(novoEmprestimo); // Adiciona o empréstimo à biblioteca
+    biblioteca.adicionarEmprestimo(novoEmprestimo);
 
     console.log("Empréstimo realizado com sucesso.");
+    console.log(`A devolução deve ser feita até ${dataDevolucao.toLocaleDateString()}.`);
 }
-
-
-
 
 function listarEmprestimos(): void {
     const emprestimos = biblioteca.consultarEmprestimos();
@@ -232,21 +249,30 @@ function devolverLivro(): void {
     const dataDevolucao = new Date();
 
     biblioteca.devolverLivro(isbn, matricula, dataDevolucao);
+    console.log("Livro devolvido com sucesso.");
 }
 
-function alterarMembro() {
+function buscarHistoricoPorMembro(): void {
     const matricula = prompt("Matrícula do membro: ");
-    const nome = prompt("Nome: ");
-    const endereco = prompt("Endereço: ");
-    const telefone = prompt("Telefone: ");
+    const membro = biblioteca.consultarMembros().find(membro => membro.getMatricula() === matricula);
 
-    const novosDados = {
-        nome: nome,
-        endereco: endereco,
-        telefone: telefone
-    };
-    biblioteca.alterarMembro(matricula, novosDados);
+    if (!membro) {
+        console.log(`Membro com matrícula ${matricula} não encontrado.`);
+        return;
+    }
+    const historico = biblioteca.buscarHistoricoPorMembro(matricula);
+    console.log(historico);
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

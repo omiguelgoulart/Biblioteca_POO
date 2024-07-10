@@ -46,4 +46,8 @@ export class Emprestimo {
     this.dataEmprestimo = dataEmprestimo;
   }
 
+  public historico(): string {
+    return `Empréstimo de ${this.livro.getTitulo()} por ${this.membro.getNome()} em ${this.dataEmprestimo.toLocaleDateString()} até ${this.dataDevolucao?.toLocaleDateString() ?? 'indefinido'}`;
+  }
+
 }

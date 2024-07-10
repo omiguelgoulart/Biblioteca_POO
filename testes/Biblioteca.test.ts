@@ -130,4 +130,30 @@ describe("Biblioteca", () => {
         expect(emprestimos).toContain(emprestimo1);
         expect(emprestimos).toContain(emprestimo2);
     });
+    it("deve buscar o histórico de empréstimos de um membro", () => {
+        const membro = new Membro("Fulano de Tal", "Rua Principal, 123", "123-456-7890", "001");
+        const livro1 = new Livro("1234567890", "Título do Livro 1", "Autor 1", "Editora 1", "2022", "Gênero 1");
+  const livro2 = new Livro("0987654321", "Título do Livro 2", "Autor 2", "Editora 2", "2023", "Gênero 2");
+  const dataEmprestimo1 = new Date("2022-01-01");
+  const dataDevolucao1 = new Date("2022-01-08");
+  const emprestimo1 = new Emprestimo(dataEmprestimo1, dataDevolucao1, livro1, membro);
+  const dataEmprestimo2 = new Date("2022-02-01");
+  const dataDevolucao2 = new Date("2022-02-08");
+  const emprestimo2 = new Emprestimo(dataEmprestimo2, dataDevolucao2, livro2, membro);
+  const biblioteca = new Biblioteca();
+  biblioteca.adicionarMembro(membro);
+  biblioteca.adicionarLivro(livro1);
+  biblioteca.adicionarLivro(livro2);
+  biblioteca.adicionarEmprestimo(emprestimo1);
+  biblioteca.adicionarEmprestimo(emprestimo2);
+  
+  const historico = biblioteca.buscarHistoricoPorMembro(membro.getMatricula());
+
+  expect(historico).toContain(
+    `Empréstimo de ${livro1.getTitulo()} por ${membro.getNome()} em ${dataEmprestimo1.toLocaleDateString()} até ${dataDevolucao1.toLocaleDateString()}`
+  );
+  expect(historico).toContain(
+    `Empréstimo de ${livro2.getTitulo()} por ${membro.getNome()} em ${dataEmprestimo2.toLocaleDateString()} até ${dataDevolucao2.toLocaleDateString()}`
+  );
+});
 });
